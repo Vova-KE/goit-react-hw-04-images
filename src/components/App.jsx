@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,88 +15,75 @@ const searchParams = new URLSearchParams({
     orientation: "horizontal",
 });
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    photos: [],
-    isVisible: false,
-    error: null,
-    isLoading: false,
-    per_page: 12,
-    isModalOpen: false,
-    modalPhoto: '',
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [photos, setPhotos] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [per_page, setPer_page] = useState(12);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalPhoto, setModalPhoto] = useState('');
+  const [tags, setTags] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    const { query, page, per_page } = this.state;
-
-    if (prevState.query !== query || prevState.page !== page) {
-      this.setState({ isLoading: true });
-
-      fetch(`${BASE_URL}?q=${query}&page=${page}&key=${MY_API_KEY}&${searchParams}&per_page=${per_page}`)
-        .then(response => response.json())
-        .then(photos => {
-          if (photos.hits.length === 0) {
-            toast.error('There are no photos');
-          }
-
-          this.setState(prevState => ({
-            photos: [...prevState.photos, ...photos.hits],
-            isVisible: page < Math.ceil(photos.totalHits / per_page),
-          }));
-        })
-        .catch(error => error)
-        .finally(() => {
-          this.setState({ isLoading: false });
-        });
+  useEffect(() => {
+    if (!query) {
+      return;
     }
-  };
 
-  handleSearchSubmit = (query) => {
-    if (this.state.query === query) {
+    setIsLoading(true);
+
+    fetch(`${BASE_URL}?q=${query}&page=${page}&key=${MY_API_KEY}&${searchParams}&per_page=${per_page}`)
+      .then(response => response.json())
+      .then(photos => {
+        if (photos.hits.length === 0) {
+          toast.error('There are no photos');
+        }
+
+        setPhotos(prevState => [...prevState, ...photos.hits])
+        setIsVisible(page < Math.ceil(photos.totalHits / per_page));
+      })
+      .catch(error => error)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  },[page, per_page, query])
+
+  const handleSearchSubmit = (inputQuery) => {
+    if (query === inputQuery) {
       toast.error(`You already find ${query}`);
       return;
   }
-
-    this.setState({
-      query,
-      page: 1,
-      photos: [],
-      isVisible: false,
-    })    
+  
+    setQuery(inputQuery);
+    setPage(1);
+    setPhotos([]);
+    setIsVisible(false);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1
-    }));
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  onClickPhoto = (url) => {
-    this.setState({
-      modalPhoto: url,
-      isModalOpen: true,
-    });
+  const onClickPhoto = (largeImageURL,tags) => {
+    setModalPhoto(largeImageURL);
+    setTags(tags);
+    setIsModalOpen(true);
   };
 
-  handleModalClose = () => {
-    this.setState({ isModalOpen: false });
+  const handleModalClose = () => {
+    setIsModalOpen(false);
   };
 
-  render() {
-    const { photos, isVisible, isLoading, isModalOpen, modalPhoto } = this.state;
-
-    return (
-      <div>
-        <SearchBar onSubmit={this.handleSearchSubmit} />
-        {isLoading && <Loader />}
-        <ImageGallery photos={photos} onClickPhoto={this.onClickPhoto} />
-        {isVisible && <Button isLoading={isLoading} onClick={this.handleLoadMore} />}
-        {isModalOpen && <Modal modalPhoto={modalPhoto} onModalClose={this.handleModalClose} />}
-        
-        <ToastContainer autoClose={2000}/>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <SearchBar onSubmit={handleSearchSubmit} />
+      {isLoading && <Loader />}
+      <ImageGallery photos={photos} onClickPhoto={onClickPhoto} />
+      {isVisible && <Button isLoading={isLoading} onClick={handleLoadMore} />}
+      {isModalOpen && <Modal modalPhoto={modalPhoto} onModalClose={handleModalClose} />}
+      
+      <ToastContainer autoClose={2000}/>
+    </div>
+  );
 };
