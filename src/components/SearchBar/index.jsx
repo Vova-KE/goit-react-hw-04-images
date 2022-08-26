@@ -1,36 +1,30 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import styles from './styles.module.css';
 
-class SearchBar extends Component {
-    state = {
-        inputQuery: '',
+const SearchBar = ({onSubmit}) => {
+    const [inputQuery, setInputQuery] = useState('');
+
+    const handleInput = (event) => {
+        setInputQuery(event.currentTarget.value.trim().toLowerCase());
     };
 
-    handleInput = (event) => {
-        this.setState({ inputQuery: event.currentTarget.value.trim().toLowerCase()})
-    };
-
-    handleSubmit = (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         
-        if (this.state.inputQuery.trim() === '') {
+        if (inputQuery.trim() === '') {
             toast.error('Enter a request');
             return;
         };
         
-        this.props.onSubmit(this.state.inputQuery);
-        this.setState({inputQuery: ''});
+        onSubmit(inputQuery);
+        setInputQuery('');
     };
 
-
-    render() {
-        const { inputQuery } = this.state;
-
-        return (
+    return (
         <header className={styles.searchBar}>
-            <form className={styles.searchForm} onSubmit={this.handleSubmit}>
+            <form className={styles.searchForm} onSubmit={handleSubmit}>
                 <button type="submit" className={styles.searchFormButton}>
                     <svg role="img" xmlns="http://www.w3.org/2000/svg"
                         width="24px"
@@ -47,7 +41,7 @@ class SearchBar extends Component {
                         <path d="M14.4121122,14.4121122 L20,20" />
                         <circle cx="10" cy="10" r="6" />
                     </svg>
-                        
+
                     <span className={styles.searchFormButtonLabel}>Search</span>
                 </button>
 
@@ -58,12 +52,11 @@ class SearchBar extends Component {
                     autoFocus
                     placeholder="Search images and photos"
                     value={inputQuery}
-                    onChange={this.handleInput}
+                    onChange={handleInput}
                 />
             </form>
         </header>
     )
-    }
 };
 
 SearchBar.propTypes = {
