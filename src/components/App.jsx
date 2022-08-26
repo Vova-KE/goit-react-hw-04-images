@@ -21,10 +21,10 @@ export const App = () => {
   const [photos, setPhotos] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [per_page, setPer_page] = useState(12);
+  // const [per_page, setPer_page] = useState(12);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalPhoto, setModalPhoto] = useState('');
-  const [tags, setTags] = useState('');
+  // const [tags, setTags] = useState('');
 
   useEffect(() => {
     if (!query) {
@@ -33,7 +33,7 @@ export const App = () => {
 
     setIsLoading(true);
 
-    fetch(`${BASE_URL}?q=${query}&page=${page}&key=${MY_API_KEY}&${searchParams}&per_page=${per_page}`)
+    fetch(`${BASE_URL}?q=${query}&page=${page}&key=${MY_API_KEY}&${searchParams}&per_page=12`)
       .then(response => response.json())
       .then(photos => {
         if (photos.hits.length === 0) {
@@ -41,13 +41,13 @@ export const App = () => {
         }
 
         setPhotos(prevState => [...prevState, ...photos.hits])
-        setIsVisible(page < Math.ceil(photos.totalHits / per_page));
+        setIsVisible(page < Math.ceil(photos.totalHits / 12));
       })
       .catch(error => error)
       .finally(() => {
         setIsLoading(false);
       });
-  },[page, per_page, query])
+  },[page, query])
 
   const handleSearchSubmit = (inputQuery) => {
     if (query === inputQuery) {
@@ -65,9 +65,9 @@ export const App = () => {
     setPage(prevState => prevState + 1);
   };
 
-  const onClickPhoto = (largeImageURL,tags) => {
+  const onClickPhoto = (largeImageURL,/*tags*/) => {
     setModalPhoto(largeImageURL);
-    setTags(tags);
+    // setTags(tags);
     setIsModalOpen(true);
   };
 
