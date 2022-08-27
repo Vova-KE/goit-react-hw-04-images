@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Button from "./Button";
-import ImageGallery from "./ImageGallery";
-import Loader from "./Loader";
-import Modal from "./Modal";
-import SearchBar from "./SearchBar";
+import Button from "./Button/button";
+import ImageGallery from "./ImageGallery/imageGallery";
+import Loader from "./Loader/loader";
+import Modal from "./Modal/modal";
+import SearchBar from "./SearchBar/searchBar";
 
 const BASE_URL = 'https://pixabay.com/api/';
 const MY_API_KEY = '27785613-3c730127b1356d079421a0eb8';  
